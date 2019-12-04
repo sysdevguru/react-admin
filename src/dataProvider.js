@@ -11,6 +11,16 @@ export default {
   		headers.append('Accept', 'application/json');
 		headers.append('x-api-key', 'JqyRQgc2Z3');
 		headers.append('frontend', 'true');
-		return httpClient(url, {method: 'POST', headers: headers}).then(({ json }) => ({ data: json }));
+		return httpClient(url, {method: 'POST', headers: headers}).then(({ json }) => ({ data: json, total: 10 }));
+	},
+
+	deleteMany: (resource, params) => {
+		const url = `${apiUrl}/api/v1/admin/DeleteUser?ids=${params.ids}`;
+		let headers = new Headers();
+		headers.append('Content-Type', 'application/json');
+  		headers.append('Accept', 'application/json');
+		headers.append('x-api-key', 'JqyRQgc2Z3');
+		headers.append('frontend', 'true');
+		return httpClient(url, {method: 'POST', headers: headers}).then(({ json }) => ({data: json}));
 	}
 };
