@@ -5,35 +5,41 @@ const httpClient = fetchUtils.fetchJson;
 
 export default {
 	login: ({ username, password }) => {
-		localStorage.setItem('username', username);
-		localStorage.setItem('password', password);
-		if (username === 'admin' && password === 'evolveadmin') {
-			return Promise.resolve();
-		}
-		return Promise.reject();
+		let headers = new Headers();
+		headers.append('Content-Type', 'application/json');
+  		headers.append('Accept', 'application/json');
+		headers.append('x-api-key', 'JqyRQgc2Z3');
+		const url = `${apiUrl}/api/v1/admin/Login`;
+		return httpClient(url, 
+			{method: 'POST', 
+			headers: headers, 
+			body: JSON.stringify({
+				id: username,
+				password: password,
+			})})
+			.then(response => {
+				if (response.json.errcode !== 0) {
+					return Promise.reject();
+				} else {
+					localStorage.setItem('token', response.json.data.security_token);
+					return Promise.resolve();
+				}
+			});
 	},
 	logout: () => {
-		localStorage.removeItem('username');
+		localStorage.removeItem('token');
 		return Promise.resolve();
 	},
 	checkError: ({ status }) => {
 		if (status === 401 || status === 403) {
-			localStorage.removeItem('username');
+			localStorage.removeItem('token');
 			return Promise.reject();
 		}
 		return Promise.resolve();
 	},
-	checkAuth: () => {
-		if (localStorage.getItem('username') === 'admin' && localStorage.getItem('password') === 'evolveadmin') {
-			return Promise.resolve();
-		}
-		return Promise.reject();
-		// const url = `${apiUrl}/api/v1/admin/Login?id=admin&password=evolveadmin`;
-		// let headers = new Headers();
-		// headers.append('Content-Type', 'application/json');
-  		// headers.append('Accept', 'application/json');
-		// headers.append('x-api-key', 'JqyRQgc2Z3');
-		// return httpClient(url, {method: 'POST', headers: headers}).then(({ json }) => ({ data: json}));
-	},
+	checkAuth: () => localStorage.getItem('token')
+		? Promise.resolve()
+		: Promise.reject(),
+	
 	getPermissions: () => Promise.resolve(),
 };
